@@ -61,3 +61,39 @@ function json_print(col, str1, rec, str)
 		end
 	end
 end
+
+-- extended
+util.AddNetworkString("ix_JsonPrint")
+
+function ix_SendMessage(client, mtype, text)
+	local mtype_2 = ''
+	
+	if mtype == 1 then
+		mtype_2 = '[WARNING]'
+	elseif mtype == 2 then
+		mtype_2 = '[NOTICE]'
+	elseif mtype == 3 then
+		mtype_2 = '[FATAL]'
+	else
+		mtype_2 = '[ERROR]'
+	end
+	
+	local message = {
+		['text'] = tostring(text),
+		['type'] = mtype_2
+	}
+	
+	local message_json = util.TableToJSON(message)
+	
+	if tostring(client) == 'all' then
+		for _, v in ipairs(player.GetHumans()) do
+			net.Start('ix_JsonPrint')
+				net.WriteString(message_json)
+			net.Send(v)
+		end
+	else
+		net.Start('ix_JsonPrint')
+			net.WriteString(message_json)
+		net.Send(client)
+	end
+end
